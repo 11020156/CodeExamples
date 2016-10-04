@@ -35,5 +35,31 @@
 
 @implementation UYLTextCell
 
+- (id)debugQuickLookObject
+{
+    // NSString *result = [NSString stringWithFormat:@"%@: %@",self.numberLabel.text,self.lineLabel.text];
+    
+    NSAttributedString *cr = [[NSAttributedString alloc] initWithString:@"\n"];
+    NSMutableAttributedString *result = [[NSMutableAttributedString alloc] initWithAttributedString:self.numberLabel.attributedText];
+    [result appendAttributedString:cr];
+    [result appendAttributedString:self.lineLabel.attributedText];
+    return result;
+}
+
+// Need to implement layoutSubiews and set the preferred max layout width of the multi-line label or
+// the cell height does not get correctly calculated when the device changes orientation.
+//
+// Credit to this GitHub example project and StackOverflow answer for providing the missing details:
+//
+// https://github.com/smileyborg/TableViewCellWithAutoLayout
+// http://stackoverflow.com/questions/18746929/using-auto-layout-in-uitableview-for-dynamic-cell-layouts-variable-row-heights
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    
+    [self.contentView layoutIfNeeded];
+    self.lineLabel.preferredMaxLayoutWidth = CGRectGetWidth(self.lineLabel.frame);
+}
 
 @end
