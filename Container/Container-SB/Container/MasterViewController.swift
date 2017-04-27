@@ -35,23 +35,51 @@ import UIKit
 
 class MasterViewController: UIViewController {
 
+    @IBOutlet private weak var topStackView: UIStackView!
     fileprivate var locationTableViewController: LocationTableViewController?
     fileprivate var mapViewController: MapViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        guard let locationController = childViewControllers.first as? LocationTableViewController else {
-            fatalError("Check storyboard for missing LocationTableViewController")
+//        guard let locationController = childViewControllers.first as? LocationTableViewController else {
+//            fatalError("Check storyboard for missing LocationTableViewController")
+//        }
+//
+//        guard let mapController = childViewControllers.last as? MapViewController else {
+//            fatalError("Check storyboard for missing MapViewController")
+//        }
+//
+//        locationTableViewController = locationController
+//        mapViewController = mapController
+//        locationController.delegate = self
+
+        topStackView.axis = axisForSize(view.bounds.size)
+    }
+
+    // Alternative to wiring up the interface in viewDidLoad (above) is to
+    // use prepare(for segue:sender:) which is still called for 
+    // embed segues.
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destination = segue.destination
+        if let locationController = destination as? LocationTableViewController {
+            locationTableViewController = locationController
+            locationController.delegate = self
         }
 
-        guard let mapController = childViewControllers.last as? MapViewController else {
-            fatalError("Check storyboard for missing MapViewController")
+        if let mapController = destination as? MapViewController {
+            mapViewController = mapController
         }
+    }
 
-        locationTableViewController = locationController
-        mapViewController = mapController
-        locationController.delegate = self
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        topStackView.axis = axisForSize(size)
+    }
+
+    private func axisForSize(_ size: CGSize) -> UILayoutConstraintAxis {
+        return size.width > size.height ? .horizontal : .vertical
     }
 }
 
